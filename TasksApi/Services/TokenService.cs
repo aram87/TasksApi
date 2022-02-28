@@ -39,7 +39,7 @@ namespace TasksApi.Services
             }
             userRecord.RefreshTokens?.Add(new RefreshToken
             {
-                ExpiryDate = DateTime.Now.AddDays(30),
+                ExpiryDate = DateTime.Now.AddDays(14),
                 Ts = DateTime.Now,
                 UserId = userId,
                 TokenHash = refreshTokenHashed,
@@ -82,7 +82,7 @@ namespace TasksApi.Services
             {
                 response.Success = false;
                 response.Error = "Invalid session or user is already logged out";
-                response.ErrorCode = "R02";
+                response.ErrorCode = "invalid_grant";
                 return response;
             }
 
@@ -92,7 +92,7 @@ namespace TasksApi.Services
             {
                 response.Success = false;
                 response.Error = "Invalid refresh token";
-                response.ErrorCode = "R03";
+                response.ErrorCode = "invalid_grant";
                 return response;
             }
           
@@ -100,7 +100,7 @@ namespace TasksApi.Services
             {
                 response.Success = false;
                 response.Error = "Refresh token has expired";
-                response.ErrorCode = "R04";
+                response.ErrorCode = "invalid_grant";
                 return response;
             }
 

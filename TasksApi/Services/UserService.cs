@@ -17,6 +17,30 @@ namespace TasksApi.Services
             this.tokenService = tokenService;
         }
 
+        public async Task<UserResponse> GetInfoAsync(int userId)
+        {
+            var user = await tasksDbContext.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                return new UserResponse
+                {
+                    Success = false,
+                    Error = "No user found",
+                    ErrorCode = "I001"
+                };
+            }
+
+            return new UserResponse
+            {
+                Success = true,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                CreationDate = user.Ts
+            };
+        }
+
         public async Task<TokenResponse> LoginAsync(LoginRequest loginRequest)
         {
             var user = tasksDbContext.Users.SingleOrDefault(user => user.Active && user.Email == loginRequest.Email);
@@ -48,7 +72,9 @@ namespace TasksApi.Services
             {
                 Success = true,
                 AccessToken = token.Item1,
-                RefreshToken = token.Item2
+                RefreshToken = token.Item2,
+                UserId = user.Id,
+                FirstName = user.FirstName
             };
         }
 

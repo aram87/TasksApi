@@ -63,12 +63,12 @@ namespace TasksApi.Controllers
 
             if (!validateRefreshTokenResponse.Success)
             {
-                return UnprocessableEntity(validateRefreshTokenResponse);
+                return BadRequest(validateRefreshTokenResponse);
             }
 
             var tokenResponse = await tokenService.GenerateTokensAsync(validateRefreshTokenResponse.UserId);
 
-            return Ok(new { AccessToken = tokenResponse.Item1, Refreshtoken = tokenResponse.Item2 });
+            return Ok(new TokenResponse { AccessToken = tokenResponse.Item1, RefreshToken = tokenResponse.Item2 });
         }
 
         [HttpPost]
@@ -111,6 +111,22 @@ namespace TasksApi.Controllers
             }
 
             return Ok();
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("info")]
+        public async Task<IActionResult> Info()
+        {
+            var userResponse = await userService.GetInfoAsync(UserID);
+
+            if (!userResponse.Success)
+            {
+                return UnprocessableEntity(userResponse);
+            }
+
+            return Ok(userResponse);
+
         }
     }
 }

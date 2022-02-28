@@ -8,6 +8,19 @@ using TasksApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+const string AllowAllHeadersPolicy = "AllowAllHeadersPolicy";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(AllowAllHeadersPolicy,
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200")
+                    .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -27,7 +40,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = TokenHelper.Issuer,
                 ValidAudience = TokenHelper.Audience,
-                IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(TokenHelper.Secret))
+                IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(TokenHelper.Secret)),
+                ClockSkew = TimeSpan.Zero
             };
 
         });
@@ -39,7 +53,7 @@ builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<ITaskService, TaskService>();
 
 var app = builder.Build();
-
+app.UseCors(AllowAllHeadersPolicy);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

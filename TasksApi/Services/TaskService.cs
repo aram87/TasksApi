@@ -62,24 +62,24 @@ namespace TasksApi.Services
         {
             var tasks = await tasksDbContext.Tasks.Where(o => o.UserId == userId).ToListAsync();
 
-            if (tasks.Count == 0)
-            {
-                return new GetTasksResponse
-                { 
-                    Success = false, 
-                    Error = "No tasks found for this user", 
-                    ErrorCode = "T04"
-                };
-            }
-
             return new GetTasksResponse { Success = true, Tasks = tasks };
 
         }
 
         public async Task<SaveTaskResponse> SaveTask(Task task)
         {
-            await tasksDbContext.Tasks.AddAsync(task);
+            if (task.Id == 0)
+            {
+                await tasksDbContext.Tasks.AddAsync(task);
+            }
+            else
+            {
+                var taskRecord = await tasksDbContext.Tasks.FindAsync(task.Id);
 
+                taskRecord.IsCompleted = task.IsCompleted;
+                taskRecord.Ts = task.Ts;
+            }
+            
             var saveResponse = await tasksDbContext.SaveChangesAsync();
             
             if (saveResponse >= 0)
